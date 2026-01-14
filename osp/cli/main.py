@@ -112,13 +112,61 @@ def ok(text: str):
     console.print(Text(f"  + {text}", Style(color=FOAM)))
 
 
+def show_help():
+    """Display styled help with all commands."""
+    animate_wave()
+    wave_banner()
+    
+    console.print()
+    t = Text("  commands", Style(color=TEAL, bold=True))
+    console.print(t)
+    console.print()
+    
+    commands = [
+        ("device", "show your openswim device info & storage"),
+        ("ls", "list all tracks on your device"),
+        ("dl", "download from youtube (video, playlist, or id)"),
+        ("search", "search youtube for songs"),
+        ("spotify", "download from spotify (no api key needed)"),
+        ("sync", "copy local music folder to device"),
+    ]
+    
+    for cmd, desc in commands:
+        cmd_text = Text(f"  osp {cmd:<10}", Style(color=AQUA, bold=True))
+        desc_text = Text(desc, Style(color=OCEAN))
+        console.print(cmd_text, desc_text, sep="")
+    
+    console.print()
+    t = Text("  quick start", Style(color=TEAL, bold=True))
+    console.print(t)
+    console.print()
+    
+    examples = [
+        ("download a song", "osp dl \"song name or youtube url\""),
+        ("from spotify", "osp spotify \"spotify playlist url\""),
+        ("to device", "osp dl \"...\" --device"),
+    ]
+    
+    for label, example in examples:
+        label_text = Text(f"  {label:<16}", Style(color=OCEAN, dim=True))
+        example_text = Text(example, Style(color=FOAM))
+        console.print(label_text, example_text, sep="")
+    
+    console.print()
+    t = Text("  tip: ", Style(color=DEEP))
+    t.append("use ", Style(color=OCEAN))
+    t.append("osp <command> --help", Style(color=AQUA))
+    t.append(" for detailed options", Style(color=OCEAN))
+    console.print(t)
+    console.print()
+
+
 @click.group(invoke_without_command=True)
 @click.version_option(version=__version__, prog_name="osp")
 @click.pass_context
 def cli(ctx):
     if ctx.invoked_subcommand is None:
-        animate_wave()
-        wave_banner()
+        show_help()
 
 
 @cli.command()
