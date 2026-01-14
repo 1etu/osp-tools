@@ -6,6 +6,10 @@
 
 python tools for managing openswim mp3 players.
 
+## cli overview
+<img width="501" height="359" alt="image" src="https://github.com/user-attachments/assets/67efff33-6890-462b-8564-b0b2f8e0bf7f" />
+
+
 ## features
 
 - **device detection**: automatically finds openswim device path on macos, linux, and windows.
