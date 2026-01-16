@@ -38,7 +38,7 @@ class DeviceNotFound(Exception):
     pass
 
 
-KNOWN_NAMES = ["OpenSwim", "OPENSWIM", "OpenSwim Pro", "SHOKZ", "Shokz"]
+KNOWN_NAMES = ["OpenSwim", "OPENSWIM", "OpenSwim Pro", "SHOKZ", "Shokz", "SHOKZ PRO", "SWIM PRO", "SWIM"]
 AUDIO_EXTS = {".mp3", ".wav", ".m4a", ".flac", ".wma"}
 
 
