@@ -232,9 +232,10 @@ def list_cmd():
 @cli.command("dl")
 @click.argument("url_or_id")
 @click.option("-o", "--out", type=click.Path(), default="./downloads")
+@click.option("-f", "--format", "fmt", type=click.Choice(["mp3", "m4a", "aac", "flac", "opus", "wav", "ogg"]), default="mp3", help="output format")
 @click.option("-q", "--quality", type=click.Choice(["128", "192", "256", "320"]), default="192")
 @click.option("--device", "to_device", is_flag=True)
-def download(url_or_id: str, out: str, quality: str, to_device: bool):
+def download(url_or_id: str, out: str, fmt: str, quality: str, to_device: bool):
     animate_wave()
     console.print()
     msg("download", TEAL)
@@ -258,8 +259,10 @@ def download(url_or_id: str, out: str, quality: str, to_device: bool):
     else:
         out_dir = Path(out)
         msg(f"target   {out_dir}", OCEAN)
+    
+    msg(f"format   {fmt}", OCEAN)
 
-    dl = Downloader(out_dir, quality=quality)
+    dl = Downloader(out_dir, fmt=fmt, quality=quality)
     console.print()
 
     with Progress(
@@ -397,12 +400,13 @@ def search_cmd(query: tuple, num: int):
 @cli.command("spotify")
 @click.argument("url")
 @click.option("-o", "--out", type=click.Path(), default="./downloads")
+@click.option("-f", "--format", "fmt", type=click.Choice(["mp3", "m4a", "aac", "flac", "opus", "wav", "ogg"]), default="mp3", help="output format")
 @click.option("-q", "--quality", type=click.Choice(["128", "192", "256", "320"]), default="192")
 @click.option("--device", "to_device", is_flag=True)
 @click.option("--info", "info_only", is_flag=True, help="show info only, don't download")
 @click.option("-w", "--workers", type=int, default=4, help="parallel downloads")
 @click.option("--fast", "fast_mode", is_flag=True, help="skip transcoding (m4a, ~2x faster)")
-def spotify_cmd(url: str, out: str, quality: str, to_device: bool, info_only: bool, workers: int, fast_mode: bool):
+def spotify_cmd(url: str, out: str, fmt: str, quality: str, to_device: bool, info_only: bool, workers: int, fast_mode: bool):
     animate_wave()
     console.print()
     msg("spotify", TEAL)
@@ -449,6 +453,7 @@ def spotify_cmd(url: str, out: str, quality: str, to_device: bool, info_only: bo
         out_dir = Path(out)
         msg(f"target   {out_dir}", OCEAN)
     
+    msg(f"format   {fmt}", OCEAN)
     msg(f"workers  {workers}", OCEAN)
     if fast_mode:
         msg("mode     fast (no transcoding)", AQUA)
@@ -460,7 +465,7 @@ def spotify_cmd(url: str, out: str, quality: str, to_device: bool, info_only: bo
         fast_mode=fast_mode,
     )
     
-    bulk_dl = BulkDownloader(out_dir, quality=quality, config=config)
+    bulk_dl = BulkDownloader(out_dir, fmt=fmt, quality=quality, config=config)
     
     with Progress(
         TextColumn("{task.description}", style=OCEAN),

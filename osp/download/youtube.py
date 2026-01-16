@@ -53,6 +53,18 @@ YOUTUBE_PATTERNS = [
     r"(https?://)?(www\.)?youtube\.com/shorts/",
 ]
 
+SUPPORTED_FORMATS = ["mp3", "m4a", "aac", "flac", "opus", "wav", "ogg"]
+
+FORMAT_QUALITY_MAP = {
+    "mp3": {"min": 128, "max": 320, "default": 192},
+    "m4a": {"min": 96, "max": 256, "default": 160},
+    "aac": {"min": 96, "max": 256, "default": 160},
+    "opus": {"min": 96, "max": 320, "default": 160},
+    "ogg": {"min": 128, "max": 320, "default": 192},
+    "flac": {"min": 0, "max": 0, "default": 0},  
+    "wav": {"min": 0, "max": 0, "default": 0},  
+}
+
 
 def is_youtube(url: str) -> bool:
     return any(re.match(p, url) for p in YOUTUBE_PATTERNS)
@@ -62,12 +74,39 @@ def is_playlist(url: str) -> bool:
     return "playlist?list=" in url or "&list=" in url
 
 
+def _validate_format(fmt: str) -> str:
+    """Validate and normalize format."""
+    fmt = fmt.lower().strip()
+    if fmt not in SUPPORTED_FORMATS:
+        raise ValueError(f"Unsupported format '{fmt}'. Supported: {', '.join(SUPPORTED_FORMATS)}")
+    return fmt
+
+
+def _adjust_quality(fmt: str, quality: str) -> str:
+    """Adjust quality setting based on format capabilities."""
+    if fmt in ["flac", "wav"]:
+        return "0"  # ignre
+    
+    try:
+        quality_num = int(quality)
+    except (ValueError, TypeError):
+        return str(FORMAT_QUALITY_MAP[fmt]["default"])
+    
+    fmt_range = FORMAT_QUALITY_MAP[fmt]
+    if quality_num < fmt_range["min"]:
+        return str(fmt_range["min"])
+    elif quality_num > fmt_range["max"]:
+        return str(fmt_range["max"])
+    
+    return str(quality_num)
+
+
 class Downloader:
     def __init__(self, out_dir: Union[Path, str], fmt: str = "mp3", quality: str = "192"):
         self.out_dir = Path(out_dir)
         self.out_dir.mkdir(parents=True, exist_ok=True)
-        self.fmt = fmt
-        self.quality = quality
+        self.fmt = _validate_format(fmt)
+        self.quality = _adjust_quality(self.fmt, quality)
         self._hook: Optional[ProgressHook] = None
 
     def get(self, url: str, on_progress: Optional[ProgressHook] = None) -> Result:
@@ -122,12 +161,9 @@ class Downloader:
         return results
 
     def _opts(self) -> Dict:
-        return {
+        opts = {
             "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
             "outtmpl": str(self.out_dir / "%(title)s.%(ext)s"),
-            "postprocessors": [
-                {"key": "FFmpegExtractAudio", "preferredcodec": self.fmt, "preferredquality": self.quality},
-            ],
             "writethumbnail": False,
             "progress_hooks": [self._on_progress],
             "logger": _NullLogger(),
@@ -141,6 +177,13 @@ class Downloader:
             "extract_flat": False,
             "nocheckcertificate": True,
         }
+        
+        if self.fmt not in ["flac", "wav"] or self.quality != "0":
+            opts["postprocessors"] = [
+                {"key": "FFmpegExtractAudio", "preferredcodec": self.fmt, "preferredquality": self.quality},
+            ]
+        
+        return opts
 
     def _on_progress(self, data: Dict) -> None:
         if not self._hook:

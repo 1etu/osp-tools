@@ -63,7 +63,9 @@ osp dl "https://youtube.com/watch?v=..."             # download single video
 osp dl "https://youtube.com/playlist?list=..."       # download entire playlist
 osp dl dQw4w9WgXcQ                                   # download by video id
 osp dl "..." --device                                # download directly to openswim
-osp dl "..." -q 320                                  # 320kbps quality
+osp dl "..." -f m4a                                  # download as m4a (more efficient)
+osp dl "..." -f mp3 -q 320                          # 320kbps mp3
+osp dl "..." -f flac                                 # lossless audio (flac)
 osp dl "..." -o ./music                              # custom output directory
 ```
 
@@ -83,8 +85,11 @@ osp spotify "https://open.spotify.com/playlist/..."  # playlist
 osp spotify "https://open.spotify.com/artist/..."    # artist top tracks
 osp spotify "..." --info                             # show track list only
 osp spotify "..." --device                           # download to openswim
+osp spotify "..." -f m4a                             # download as m4a
+osp spotify "..." -f mp3 -q 320                      # 320kbps mp3
 osp spotify "..." -w 8                               # 8 parallel downloads
 osp spotify "..." --fast                             # skip transcoding (~2x speed)
+osp spotify "..." -f m4a --fast                      # m4a + fast mode (fastest)
 ```
 
 ### sync local files
@@ -93,6 +98,17 @@ osp spotify "..." --fast                             # skip transcoding (~2x spe
 osp sync ./downloads              # sync folder to device (skip existing)
 osp sync ./downloads --all        # overwrite all
 ```
+
+### format support
+
+supported formats: `mp3`, `m4a`, `aac`, `flac`, `opus`, `wav`, `ogg`
+
+format quality ranges (auto-adjusted):
+- `mp3`: 128-320kbps (default: 192)
+- `m4a/aac`: 96-256kbps (default: 160, more efficient)
+- `opus`: 96-320kbps (default: 160)
+- `ogg`: 128-320kbps (default: 192)
+- `flac/wav`: lossless (quality ignored)
 
 ## dependencies
 
