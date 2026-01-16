@@ -206,5 +206,6 @@ class Downloader:
                 if f.suffix.lower() == ext and clean in f.stem.lower():
                     return f
 
-        files = [f for f in self.out_dir.iterdir() if f.is_file()]
+        audio_exts = {".mp3", ".m4a", ".aac", ".flac", ".opus", ".wav", ".ogg", ".webm"}
+        files = [f for f in self.out_dir.iterdir() if f.is_file() and f.suffix.lower() in audio_exts]
         return max(files, key=lambda x: x.stat().st_mtime) if files else None
